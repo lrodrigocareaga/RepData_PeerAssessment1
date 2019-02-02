@@ -5,9 +5,7 @@ date: "2/1/2019"
 output:html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Introduction
 
@@ -53,28 +51,64 @@ All of the R code needed to reproduce the results (numbers, plots, etc.) in the 
 ####1.Load the Data
 ####2.Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r fds1}
+
+```r
 activity <- read.csv('activity.csv',as.is = TRUE)
 dim(activity)
+```
+
+```
+## [1] 17568     3
+```
+
+```r
 ##17568 rows, 3 columns
 ```
 
 
-```{r fds2}
+
+```r
 #head, 5 rows, of dataset
 head(activity,5)
 ```
-```{r fds3}
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+```
+
+```r
 ##tail, 5 rows, of dataset
 tail(activity,5)
 ```
 
+```
+##       steps       date interval
+## 17564    NA 2012-11-30     2335
+## 17565    NA 2012-11-30     2340
+## 17566    NA 2012-11-30     2345
+## 17567    NA 2012-11-30     2350
+## 17568    NA 2012-11-30     2355
+```
 
 
-```{r fds4}
+
+
+```r
 ##total missing values
 complete_act <- activity[complete.cases(activity),]
 dim(complete_act)
+```
+
+```
+## [1] 15264     3
+```
+
+```r
 ## 15264 complete values
 ```
 
@@ -82,95 +116,196 @@ dim(complete_act)
 ###What is mean total number of steps taken per day?
 
 ####1. Calculate the total number of steps taken per day
-```{r fds5}
+
+```r
 ##total number of steps taken per day
 total_steps <- aggregate(steps ~ date, complete_act, sum)
 head(total_steps)
 ```
 
+```
+##         date steps
+## 1 2012-10-02   126
+## 2 2012-10-03 11352
+## 3 2012-10-04 12116
+## 4 2012-10-05 13294
+## 5 2012-10-06 15420
+## 6 2012-10-07 11015
+```
+
 ####2. If you do not understand the difference between a histogram and a barplot, research the difference between them. Make a histogram of the total number of steps taken each day
-```{r fds6}
+
+```r
 ## histogram
 hist(total_steps$steps, main = "Histogram of total number of steps taken per day", xlab = "Steps per day")
 ```
 
+![plot of chunk fds6](figure/fds6-1.png)
+
 ####3. Calculate and report the mean and median of the total number of steps taken per day
-```{r fds7}
+
+```r
 ## summary of total steps with mean and median
 summary(total_steps)
+```
+
+```
+##      date               steps      
+##  Length:53          Min.   :   41  
+##  Class :character   1st Qu.: 8841  
+##  Mode  :character   Median :10765  
+##                     Mean   :10766  
+##                     3rd Qu.:13294  
+##                     Max.   :21194
 ```
 
 
 ### What is the average daily activity pattern?
 
 ####1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
-```{r fds8}
+
+```r
 ## time series plot 
 average_steps <- aggregate(steps ~ interval, complete_act,mean) 
 plot(average_steps$interval,average_steps$steps,type = 'l',col=1,main = 'Time series with average number of steps by interval',xlab='Time by interval',ylab = 'average number of steps')
 ```
 
+![plot of chunk fds8](figure/fds8-1.png)
+
 
 ####2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r fds9}
+
+```r
 ## maximum time interval
 interval_max <- which.max(average_steps$steps)
 print (paste('The interval with the highest average steps is ', average_steps[interval_max, ]$interval))
 ```
-```{r fds10}
+
+```
+## [1] "The interval with the highest average steps is  835"
+```
+
+```r
 ## number of steps of interval
 print (paste('Number of steps for that interval is ', average_steps[interval_max, ]$steps))
+```
+
+```
+## [1] "Number of steps for that interval is  206.169811320755"
 ```
 ###Imputing missing values
 
 ####1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
-```{r fds11}
+
+```r
 ##total missing values
 missing_act <- activity[is.na(activity$steps),]
 dim(missing_act)
+```
+
+```
+## [1] 2304    3
+```
+
+```r
 ## 2304 missing values
 ```
 
 ####2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
-```{r fds12}
+
+```r
 ##median steps fill
 median_steps <- with(complete_act, tapply(steps, complete_act$interval, median))
 missing_act$steps <- median_steps
 head(missing_act)
+```
+
+```
+##   steps       date interval
+## 1     0 2012-10-01        0
+## 2     0 2012-10-01        5
+## 3     0 2012-10-01       10
+## 4     0 2012-10-01       15
+## 5     0 2012-10-01       20
+## 6     0 2012-10-01       25
+```
+
+```r
 tail(missing_act)
+```
+
+```
+##       steps       date interval
+## 17563     0 2012-11-30     2330
+## 17564     0 2012-11-30     2335
+## 17565     0 2012-11-30     2340
+## 17566     0 2012-11-30     2345
+## 17567     0 2012-11-30     2350
+## 17568     0 2012-11-30     2355
 ```
 
 
 ####3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
-```{r fds13}
+
+```r
 ##new data set with values filled
 new_activity <- rbind(complete_act, missing_act)
 dim(new_activity)
 ```
 
+```
+## [1] 17568     3
+```
 
-```{r fds14}
+
+
+```r
 ##check if new data set has NA values
 print(new_activity[is.na(new_activity$steps),])
+```
+
+```
+## [1] steps    date     interval
+## <0 rows> (or 0-length row.names)
 ```
 
 
 
 ####4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r fds15}
+
+```r
 ##Histogram
 total_steps2 <- with(new_activity, tapply(steps, as.factor(new_activity$date), sum))
 hist(total_steps2, main = "Histogram of total number of steps taken per day", xlab = "Total number of steps")
 ```
-```{r fds16}
+
+![plot of chunk fds15](figure/fds15-1.png)
+
+```r
 ## summary of total steps with mean and median
 summary(total_steps)
 ```
+
+```
+##      date               steps      
+##  Length:53          Min.   :   41  
+##  Class :character   1st Qu.: 8841  
+##  Mode  :character   Median :10765  
+##                     Mean   :10766  
+##                     3rd Qu.:13294  
+##                     Max.   :21194
+```
 First dataset compared with the new filled data set
-```{r fds17}
+
+```r
 ## summary of total steps with mean and median with filled data
 summary(total_steps2)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    6778   10395    9504   12811   21194
 ```
 
 
@@ -179,7 +314,8 @@ summary(total_steps2)
 
 ####1. Create a new factor variable in the dataset with two levels ??? ???weekday??? and ???weekend??? indicating whether a given date is a weekday or weekend day.
 
-```{r fds18}
+
+```r
 ## function to verify if it is a weekday or a weekend
 week_day <- function(day_var) {
     wds <- weekdays(as.Date(day_var, '%Y-%m-%d'))
@@ -190,24 +326,26 @@ week_day <- function(day_var) {
     }
     x
 }
-
 ```
 
-```{r fds19}
+
+```r
 ## use the function to create new variable
 new_activity$day_type <- as.factor(sapply(new_activity$date,week_day))
 ```
 ####2. Make a panel plot containing a time series plot (i.e. **type = "l"**) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
 
-```{r fds20}
+
+```r
 ##ggplot
 library(ggplot2)
 
 steps_Day <- aggregate(steps ~ interval + day_type, new_activity, mean)
 ```
 
-```{r fds21}
+
+```r
 ##create plot
 plt <- ggplot(steps_Day, aes(interval, steps)) +
     geom_line(stat = "identity", aes(colour = day_type)) +
@@ -217,6 +355,8 @@ plt <- ggplot(steps_Day, aes(interval, steps)) +
     ggtitle("Number of steps Per Interval by weekday/weekend")
 print(plt)
 ```
+
+![plot of chunk fds21](figure/fds21-1.png)
 
 
 
